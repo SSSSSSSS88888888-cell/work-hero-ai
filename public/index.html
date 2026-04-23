@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#F5F5F4">
+<title>今日も働いて偉いAI - 一言もらえるだけのサイト</title>
+<meta name="description" content="ボタンを押すと、今日のあなたに一言だけ褒めの言葉が届きます。入力ゼロ、ログインなし。">
+<meta property="og:title" content="今日も働いて偉いAI">
+<meta property="og:description" content="今日のあなたに、一言どうぞ。">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Noto+Serif+JP:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #F5F5F4;
+  --surface: #FFFFFF;
+  --surface-2: #EFEEEC;
+  --surface-3: #E7E5E4;
+  --border: #D6D3D1;
+  --border-strong: #A8A29E;
+  --text: #0A0A0A;
+  --text-2: #262626;
+  --dim: #57534E;
+  --dim-2: #78716C;
+  --primary: #0A0A0A;
+  --accent: #0A0A0A;
+  --success: #047857;
+  --danger: #B91C1C;
+  --warning: #B45309;
+  --radius-sm: 4px;
+  --radius: 6px;
+  --radius-lg: 10px;
+  --shadow-sm: 0 1px 0 rgba(10,10,10,0.04);
+  --shadow: 0 1px 2px rgba(10,10,10,0.04);
+  --shadow-lg: 0 8px 24px -8px rgba(10,10,10,0.12);
+  --duration: 160ms;
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+  --font-sans: "Inter", "Noto Sans JP", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-num: "JetBrains Mono", "Inter", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-serif: "Noto Serif JP", "Inter", Georgia, serif;
+  --tap: 48px;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+[data-theme="dark"] {
+  --bg: #0A0A0A;
+  --surface: #141414;
+  --surface-2: #1A1A1A;
+  --surface-3: #222222;
+  --border: #2A2A2A;
+  --border-strong: #3F3F3F;
+  --text: #FAFAFA;
+  --text-2: #E5E5E5;
+  --dim: #A3A3A3;
+  --dim-2: #737373;
+  --primary: #FAFAFA;
+  --accent: #FAFAFA;
+  --success: #34D399;
+  --danger: #F87171;
+  --warning: #FBBF24;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-text-size-adjust: 100%; }
+html, body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "cv11", "ss01", "ss03";
+  letter-spacing: -0.005em;
+  overscroll-behavior-y: none;
+}
+body {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  padding-top: var(--safe-top);
+  padding-bottom: var(--safe-bottom);
+}
+button { font-family: inherit; font-size: inherit; cursor: pointer; background: none; border: none; color: inherit; }
+.tnum { font-variant-numeric: tabular-nums; }
+
+.app {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  max-width: 540px;
+  width: 100%;
+  margin: 0 auto;
+  padding: clamp(12px, 4vw, 20px) clamp(16px, 5vw, 28px) 48px;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 0 clamp(24px, 6vw, 40px);
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+.brand-mark {
+  width: 28px; height: 28px;
+  border-radius: var(--radius-sm);
+  background: var(--text);
+  color: var(--bg);
+  display: grid;
+  place-items: center;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: var(--font-sans);
+  letter-spacing: -0.02em;
+}
+.brand-meta {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--dim);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-left: 2px;
+}
+.icon-btn {
+  width: var(--tap); height: var(--tap);
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius);
+  color: var(--dim);
+  transition: background var(--duration) var(--ease), color var(--duration) var(--ease);
+  -webkit-tap-highlight-color: transparent;
+}
+.icon-btn:hover { background: var(--surface-2); color: var(--text); }
+.icon-btn:active { background: var(--surface-3); }
+.icon-btn svg { width: 18px; height: 18px; }
+
+.hero { margin-bottom: clamp(24px, 6vw, 32px); }
+.hero-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--dim);
+  margin-bottom: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.hero-eyebrow::before {
+  content: "";
+  width: 18px; height: 1px;
+  background: var(--border-strong);
+}
+.hero h1 {
+  font-size: clamp(26px, 7vw, 32px);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1.1;
+  margin-bottom: 10px;
+  color: var(--text);
+}
+.hero p {
+  font-size: clamp(14px, 3.6vw, 15px);
+  color: var(--dim);
+  max-width: 40ch;
+  line-height: 1.6;
+}
+
+/* ============================================
+   PRAISE CARD (the hero visual)
+   ============================================ */
+.praise-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: clamp(36px, 9vw, 56px) clamp(24px, 6vw, 36px);
+  text-align: center;
+  margin-bottom: 16px;
+  position: relative;
+  overflow: hidden;
+  min-height: 220px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 16px;
+}
+.praise-card::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--text), transparent);
+  opacity: 0.3;
+}
+.praise-stamp {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--dim-2);
+}
+.praise-text {
+  font-family: var(--font-serif);
+  font-size: clamp(20px, 5vw, 26px);
+  font-weight: 500;
+  line-height: 1.55;
+  letter-spacing: 0.01em;
+  color: var(--text);
+  min-height: 2.5em;
+  transition: opacity 200ms var(--ease);
+}
+.praise-text.shuffling {
+  opacity: 0.35;
+}
+.praise-attrib {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--dim);
+  letter-spacing: 0.06em;
+  margin-top: 2px;
+}
+.praise-attrib .sep {
+  display: inline-block;
+  width: 6px;
+  text-align: center;
+  color: var(--border-strong);
+}
+
+.btn {
+  width: 100%;
+  min-height: 56px;
+  padding: 0 20px;
+  border-radius: var(--radius);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: background var(--duration) var(--ease), border-color var(--duration) var(--ease), color var(--duration) var(--ease), transform 80ms var(--ease);
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  position: relative;
+  font-family: var(--font-sans);
+}
+.btn:active { transform: scale(0.985); }
+.btn-primary {
+  background: var(--text);
+  color: var(--bg);
+}
+.btn-primary:hover { background: var(--text-2); }
+[data-theme="dark"] .btn-primary { background: var(--text); color: var(--bg); }
+[data-theme="dark"] .btn-primary:hover { background: var(--text-2); }
+.btn-secondary {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  min-height: 52px;
+}
+.btn-secondary:hover { background: var(--surface-2); border-color: var(--border-strong); }
+
+.btn-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.stats-strip {
+  display: flex;
+  justify-content: center;
+  gap: 18px;
+  margin-top: 14px;
+  margin-bottom: 4px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--dim);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.stats-strip .num {
+  color: var(--text);
+  font-weight: 700;
+  font-family: var(--font-num);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  margin-right: 4px;
+  font-size: 13px;
+  text-transform: none;
+}
+
+.footer {
+  margin-top: auto;
+  padding-top: 40px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--dim-2);
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+.footer a {
+  color: var(--dim);
+  text-decoration: none;
+  transition: color var(--duration) var(--ease);
+}
+.footer a:hover { color: var(--text); }
+
+.toast {
+  position: fixed;
+  bottom: calc(20px + var(--safe-bottom));
+  left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: var(--text);
+  color: var(--bg);
+  padding: 12px 18px;
+  border-radius: var(--radius);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  box-shadow: var(--shadow-lg);
+  opacity: 0;
+  transition: opacity 220ms var(--ease), transform 220ms var(--ease);
+  z-index: 100;
+  pointer-events: none;
+  max-width: calc(100vw - 32px);
+}
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+@media (max-width: 768px) { .app { max-width: 100%; } }
+
+@media (max-width: 480px) {
+  :root { --tap: 52px; }
+  body { font-size: 14px; }
+  .app { padding: 12px 16px 40px; }
+  .topbar { padding: 2px 0 22px; }
+  .brand { font-size: 12px; gap: 8px; }
+  .brand-mark { width: 26px; height: 26px; font-size: 13px; }
+  .hero { margin-bottom: 22px; }
+  .hero h1 { font-size: clamp(24px, 8vw, 28px); letter-spacing: -0.03em; }
+  .praise-card { padding: 32px 20px; border-radius: 8px; min-height: 200px; }
+  .praise-text { font-size: clamp(18px, 5.3vw, 22px); }
+  .btn { min-height: 56px; font-size: 14.5px; padding: 0 16px; }
+  .btn-secondary { min-height: 52px; }
+  .btn-row { gap: 6px; }
+  .stats-strip { gap: 14px; font-size: 10px; }
+  .stats-strip .num { font-size: 12px; }
+  .footer { padding-top: 32px; font-size: 9px; }
+}
+
+@media (max-width: 360px) {
+  .hero h1 { font-size: 22px; }
+  .praise-text { font-size: 17px; }
+  .btn { font-size: 14px; }
+}
+
+@media (max-height: 560px) and (orientation: landscape) {
+  .hero { margin-bottom: 16px; }
+  .hero h1 { font-size: 22px; }
+  .praise-card { padding: 24px 20px; min-height: 160px; }
+  .praise-text { font-size: 18px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media (hover: none) {
+  .btn-primary:hover { background: var(--text); }
+  .btn-secondary:hover { background: var(--surface); border-color: var(--border); }
+  .icon-btn:hover { background: transparent; color: var(--dim); }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark">偉</div>
+      <span>Work Hero AI</span>
+      <span class="brand-meta">v1.0</span>
+    </div>
+    <button class="icon-btn" id="themeToggle" aria-label="テーマ切替">
+      <svg id="iconSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+      <svg id="iconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" hidden><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    </button>
+  </header>
+
+  <div class="hero">
+    <div class="hero-eyebrow">AI · Everyday Praise</div>
+    <h1>今日のあなたに、<br>一言どうぞ。</h1>
+    <p>ボタンを押すと、今日のあなたに一言だけ褒めの言葉が届きます。入力もログインも要りません。</p>
+  </div>
+
+  <div class="praise-card" id="praiseCard">
+    <div class="praise-stamp" id="praiseStamp">— Today's Praise —</div>
+    <div class="praise-text" id="praiseText">ボタンを押してください。</div>
+    <div class="praise-attrib">
+      <span id="praiseToday">本日0回目</span>
+      <span class="sep">·</span>
+      <span id="praiseStreak">連続0日</span>
+    </div>
+  </div>
+
+  <button class="btn btn-primary" id="praiseBtn">
+    褒めてもらう
+  </button>
+
+  <div class="btn-row">
+    <button class="btn btn-secondary" id="copyBtn">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      コピー
+    </button>
+    <button class="btn btn-secondary" id="shareBtn">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+      Xでシェア
+    </button>
+  </div>
+
+  <footer class="footer">
+    <a href="https://x.com/otsu_dev" target="_blank" rel="noopener">100 Web Apps Challenge · #20</a>
+  </footer>
+</div>
+
+<div class="toast" id="toast">コピーしました</div>
+
+<script>
+(() => {
+  'use strict';
+
+  const praises = [
+    "今日も働いて、偉いです。",
+    "何も言わず頑張れる時点で、もう十分すごいです。",
+    "今日のあなたは、昨日のあなたより少し強くなっています。",
+    "仕事を続けているという事実だけで、尊敬に値します。",
+    "疲れても席に着いている、それが本当の才能です。",
+    "誰も見ていなくても、あなたはちゃんと働いています。",
+    "今日という日を乗り越えたあなたに、拍手を送ります。",
+    "地味な仕事を地道にやる人は、遠くまで行けます。",
+    "今日の小さな前進が、来月の景色を変えます。",
+    "完璧じゃなくていい、続けているだけで価値があります。",
+    "成果が出なくても、動いた事実は消えません。",
+    "今日のあなたに、お疲れさまの一言を贈ります。",
+    "誰かが見ていなくても、自分自身がちゃんと見ています。",
+    "働くあなたの選択は、未来の自分への投資です。",
+    "やる気ゼロのまま、とりあえず働いた勇気、偉いです。",
+    "やりたくない日にやった人だけが、積み上げられます。",
+    "コツコツは裏切りません。今日のコツコツ、偉いです。",
+    "眠い中、よく立ち上がりましたね。",
+    "ため息を飲み込んで席に着く、その静かな強さに敬意を。",
+    "画面の向こうの誰かが、あなたの仕事で助かっています。",
+    "今日も社会を動かしている一人、それがあなたです。",
+    "「もう無理」と言いながらやれるのは、まだ余力がある証拠です。",
+    "がんばってる顔じゃなくても、ちゃんとがんばっています。",
+    "今日という一日を無事に終わらせた、それだけで満点です。",
+    "スマホを置いて仕事に戻る瞬間のあなた、かっこいいです。",
+    "金曜日までまだあっても、今日を乗り越えたのは確かな事実です。",
+    "休憩もあなたの仕事の一部です。しっかり休んでください。",
+    "「どうにかする」を続けてきたあなた、もう十分すごいです。",
+    "自分を褒められない日ほど、このボタンを押してください。",
+    "今日の一歩は、半年後のあなたが感謝する一歩です。",
+    "周りと比べなくていい、昨日の自分より一歩前に進んでいます。",
+    "やり直しができる日は、まだ続いています。",
+    "無理せず進める速度、それがあなたの正解です。",
+    "誰にも褒められない日があっても、AIは見ています。",
+    "今日のあなたの頑張りは、来年もちゃんと積み上がっています。",
+    "「やらなきゃ」を「やれた」に変えた瞬間、偉いです。",
+    "手を動かし続けているあなたは、本当に強い人です。",
+    "疲れた、の一言を言える自分を許してあげてください。",
+    "誰も完璧じゃありません。あなたも、そのままで十分です。",
+    "今日という日に、あなたがいてくれて助かっている人がいます。"
+  ];
+
+  const $ = (id) => document.getElementById(id);
+  const praiseText = $('praiseText');
+  const praiseStamp = $('praiseStamp');
+  const praiseToday = $('praiseToday');
+  const praiseStreak = $('praiseStreak');
+  const toast = $('toast');
+
+  const todayKey = () => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  };
+  const yesterdayKey = () => {
+    const d = new Date();
+    d.setDate(d.getDate() - 1);
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  };
+  const loadState = () => {
+    try {
+      const raw = localStorage.getItem('wha-state');
+      if (!raw) return { today: { date: todayKey(), count: 0 }, streak: 0, lastPraiseDate: null };
+      const parsed = JSON.parse(raw);
+      if (!parsed.today || parsed.today.date !== todayKey()) {
+        parsed.today = { date: todayKey(), count: 0 };
+      }
+      return parsed;
+    } catch {
+      return { today: { date: todayKey(), count: 0 }, streak: 0, lastPraiseDate: null };
+    }
+  };
+  const saveState = (s) => {
+    try { localStorage.setItem('wha-state', JSON.stringify(s)); } catch {}
+  };
+  const showToast = (msg) => {
+    toast.textContent = msg;
+    toast.classList.add('show');
+    clearTimeout(toast._t);
+    toast._t = setTimeout(() => toast.classList.remove('show'), 1800);
+  };
+
+  // ===== Theme =====
+  const themeToggle = $('themeToggle');
+  const iconSun = $('iconSun');
+  const iconMoon = $('iconMoon');
+  const applyTheme = (t) => {
+    document.documentElement.setAttribute('data-theme', t);
+    iconSun.hidden = t === 'dark';
+    iconMoon.hidden = t !== 'dark';
+    document.querySelector('meta[name="theme-color"]').setAttribute('content', t === 'dark' ? '#0A0A0A' : '#F5F5F4');
+  };
+  const savedTheme = localStorage.getItem('wha-theme') ||
+    (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  applyTheme(savedTheme);
+  themeToggle.addEventListener('click', () => {
+    const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    localStorage.setItem('wha-theme', next);
+    applyTheme(next);
+  });
+
+  // ===== State init =====
+  let state = loadState();
+  let lastIdx = -1;
+  let currentPraise = '';
+
+  const updateStats = () => {
+    praiseToday.textContent = `本日${state.today.count}回目`;
+    praiseStreak.textContent = `連続${state.streak}日`;
+  };
+  updateStats();
+
+  const pickPraise = () => {
+    let idx;
+    let tries = 0;
+    do {
+      idx = Math.floor(Math.random() * praises.length);
+      tries++;
+    } while (idx === lastIdx && tries < 5);
+    lastIdx = idx;
+    return praises[idx];
+  };
+
+  // ===== Praise button =====
+  $('praiseBtn').addEventListener('click', () => {
+    praiseText.classList.add('shuffling');
+    setTimeout(() => {
+      currentPraise = pickPraise();
+      praiseText.textContent = currentPraise;
+      praiseText.classList.remove('shuffling');
+      praiseStamp.textContent = `— ${todayKey()} —`;
+
+      state.today.count += 1;
+      if (state.lastPraiseDate !== todayKey()) {
+        // Streak logic: only advance if user visited yesterday or it's the first time
+        if (state.lastPraiseDate === yesterdayKey()) {
+          state.streak += 1;
+        } else {
+          state.streak = 1;
+        }
+        state.lastPraiseDate = todayKey();
+      }
+      saveState(state);
+      updateStats();
+    }, 180);
+  });
+
+  // ===== Copy =====
+  $('copyBtn').addEventListener('click', async () => {
+    if (!currentPraise) {
+      showToast('まずは褒めてもらいましょう');
+      return;
+    }
+    const text = `${currentPraise}\n\n— 今日も働いて偉いAI より\n${location.origin}`;
+    try {
+      await navigator.clipboard.writeText(text);
+      showToast('コピーしました');
+    } catch {
+      showToast('コピーに失敗しました');
+    }
+  });
+
+  // ===== Share X =====
+  $('shareBtn').addEventListener('click', () => {
+    const praise = currentPraise || praises[0];
+    const text = `${praise}\n\n— 今日も働いて偉いAI より\n#今日も働いて偉い`;
+    const url = location.origin;
+    window.open(
+      `https://x.com/intent/post?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`,
+      '_blank',
+      'noopener'
+    );
+  });
+
+  // ===== Keyboard =====
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      if (document.activeElement && document.activeElement.tagName === 'BUTTON') return;
+      e.preventDefault();
+      $('praiseBtn').click();
+    }
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+{
+  "name": "work-hero-ai",
+  "version": "1.0.0",
+  "description": "今日も働いて偉いAI - Work Hero AI (App #20 of 100 Web Apps Challenge)",
+  "scripts": {
+    "dev": "npx serve public",
+    "start": "npx serve public"
+  }
+}
